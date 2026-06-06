@@ -36,7 +36,7 @@ pmfby-mvp/
 ├── Dockerfile               # Cloud Run-ready container
 ├── .env.example             # Environment variable template
 ├── .gitignore
-└── README.md                # This file
+└── README.md 
 ```
 
 ---
@@ -80,10 +80,6 @@ gcloud billing accounts list
 gcloud billing projects link pmfby-intake-mvp \
   --billing-account=XXXXXX-XXXXXX-XXXXXX
 ```
-
-> **Cost estimate for MVP testing**: Running ~100 test claims will cost approximately  
-> ₹15–40 (Gemini Flash @ ~$0.000075/image, Speech-to-Text @ ~$0.004/15s clip).
-
 ---
 
 ## 4. Enable Required APIs
@@ -142,11 +138,6 @@ gcloud iam service-accounts keys create ./service-account-key.json \
   --iam-account="${SA_EMAIL}" \
   --project=pmfby-intake-mvp
 ```
-
-> ⚠️ **Security**: The `service-account-key.json` file is already in `.gitignore`.  
-> Never commit it to version control. Store it in a secrets manager (Secret Manager or  
-> GitHub Secrets) for production deployments.
-
 ---
 
 ## 6. Local Development Setup
@@ -204,7 +195,7 @@ gcloud config set project pmfby-intake-mvp
 
 Then set in `.env`:
 ```ini
-# Leave GOOGLE_APPLICATION_CREDENTIALS blank — ADC will be used automatically
+# Leave GOOGLE_APPLICATION_CREDENTIALS blank - ADC will be used automatically
 GCP_PROJECT_ID=pmfby-intake-mvp
 ```
 
@@ -354,7 +345,7 @@ gcloud secrets add-iam-policy-binding pmfby-sa-key \
 Flash provides ~10x lower latency and ~4x lower cost vs Pro, which is critical when a
 farmer in a rural area with poor connectivity needs a response within seconds. The
 constrained JSON output schema and closed-set peril taxonomy mean we don't need Pro's
-extended reasoning — Flash's speed optimises for the 72-hour window urgency.
+extended reasoning - Flash's speed optimises for the 72-hour window urgency.
 
 ### Why `response_mime_type: application/json` in the Gemini call?
 
@@ -375,7 +366,7 @@ accommodating the varied audio codecs produced by different Android devices.
 ### Why EXIF over server-side timestamp?
 
 A farmer could submit a claim for damage that occurred 60 hours ago. Using the server's
-`datetime.now()` would mark it as 0 hours elapsed — defeating the 72-hour check. EXIF
+`datetime.now()` would mark it as 0 hours elapsed - defeating the 72-hour check. EXIF
 `DateTimeOriginal` captures when the shutter fired, giving a tamper-evident timestamp.
 The graceful degradation path (no EXIF → warning flag, not rejection) prevents the AI
 from becoming a barrier rather than an enabler.
@@ -383,11 +374,11 @@ from becoming a barrier rather than an enabler.
 ### Hallucination prevention strategy
 
 Three layers of defence against AI hallucination:
-1. **Closed-set enum** — `peril_type` must be one of 5 valid values or `REQUIRES_MANUAL_REVIEW`
-2. **Confidence gating** — sub-70% confidence forces manual review regardless of peril output
-3. **Schema validation** — `_parse_and_validate()` rejects or overrides any out-of-spec value
+1. **Closed-set enum**: `peril_type` must be one of 5 valid values or `REQUIRES_MANUAL_REVIEW`
+2. **Confidence gating**: sub-70% confidence forces manual review regardless of peril output
+3. **Schema validation**: `_parse_and_validate()` rejects or overrides any out-of-spec value
 
-The system never rejects a claim — it escalates ambiguous cases to human assessors,
+The system never rejects a claim - it escalates ambiguous cases to human assessors,
 ensuring no farmer is silently denied due to an AI error.
 
 ---
