@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PMFBY Fasal Suraksha - Crop Loss Reporting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ─── Design System ──────────────────────────────────────────────── */
+:root {
+  --soil:       #2C1A0E;
+  --earth:      #5C3317;
+  --harvest:    #D4820A;
+  --paddy:      #7DB544;
+  --sky:        #3B7DD8;
+  --cream:      #FBF6ED;
+  --mist:       #F0E9D8;
+  --fog:        #DDD3C0;
+  --ink:        #1A1209;
+  --danger:     #C0392B;
+  --warn:       #E67E22;
+  --safe:       #27AE60;
+  --radius:     14px;
+  --radius-sm:  8px;
+  --shadow:     0 4px 24px rgba(44,26,14,.12), 0 1px 4px rgba(44,26,14,.08);
+  --shadow-lg:  0 12px 48px rgba(44,26,14,.18), 0 2px 8px rgba(44,26,14,.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(125,181,68,.12) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235C3317' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ─── Header ─────────────────────────────────────────────────────── */
+.app-header {
+  background: linear-gradient(135deg, var(--soil) 0%, var(--earth) 100%);
+  color: white;
+  padding: 20px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.app-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'%3E%3Ccircle cx='400' cy='400' r='200'/%3E%3Ccircle cx='400' cy='400' r='300'/%3E%3Ccircle cx='400' cy='400' r='400'/%3E%3C/g%3E%3C/svg%3E") right -100px center / 400px no-repeat;
+}
+.header-gov-tag {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.55);
+  font-weight: 500;
+  margin-bottom: 8px;
+  position: relative;
+}
+.header-title {
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-size: 26px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  position: relative;
+}
+.header-subtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,.65);
+  font-weight: 300;
+  position: relative;
+}
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(212,130,10,.25);
+  border: 1px solid rgba(212,130,10,.4);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #F5C165;
+  letter-spacing: .5px;
+  margin-top: 12px;
+  position: relative;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #F5C165;
+  animation: pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .5; transform: scale(1.4); }
+}
+
+/* ─── Step indicator ─────────────────────────────────────────────── */
+.step-bar {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid var(--fog);
+  gap: 0;
+  overflow: hidden;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--fog);
+  transition: background .4s;
+}
+.step-item.done:not(:last-child)::after,
+.step-item.active:not(:last-child)::after { background: var(--paddy); }
+.step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--fog);
+  color: #999;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: all .3s;
+}
+.step-item.active .step-num { background: var(--paddy); color: white; }
+.step-item.done .step-num   { background: var(--safe); color: white; }
+.step-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-top: 4px;
+  text-align: center;
+}
+.step-item.active .step-label { color: var(--paddy); }
+.step-item.done .step-label   { color: var(--safe); }
+
+/* ─── Content wrapper ─────────────────────────────────────────────── */
+.content { padding: 20px; max-width: 680px; margin: 0 auto; }
+
+/* ─── Card ───────────────────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(221,211,192,.5);
+  animation: card-in .35s ease both;
+}
+@keyframes card-in {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--earth);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--fog);
+}
+
+/* ─── Form elements ──────────────────────────────────────────────── */
+.field-group { margin-bottom: 16px; }
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 6px;
+  letter-spacing: .3px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid var(--fog);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--cream);
+  transition: border-color .2s, box-shadow .2s;
+  letter-spacing: .5px;
+  -webkit-appearance: none;
+}
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--harvest);
+  box-shadow: 0 0 0 3px rgba(212,130,10,.15);
+  background: white;
+}
+input[type="text"]::placeholder { color: #c0b09a; font-weight: 400; }
+
+/* ─── Upload zone ─────────────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--fog);
+  border-radius: var(--radius-sm);
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+  background: var(--cream);
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--paddy);
+  background: rgba(125,181,68,.05);
+}
+.upload-zone input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+.upload-zone h3 { font-size: 14px; font-weight: 600; color: var(--soil); margin-bottom: 4px; }
+.upload-zone p  { font-size: 12px; color: #999; }
+.upload-preview {
+  margin-top: 12px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: none;
+}
+.upload-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  display: block;
+}
+.upload-preview.visible { display: block; }
+.preview-caption {
+  background: var(--soil);
+  color: rgba(255,255,255,.8);
+  font-size: 11px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.preview-caption .exif-badge {
+  background: var(--harvest);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ─── Audio recorder ──────────────────────────────────────────────── */
+.recorder-area { display: flex; flex-direction: column; gap: 12px; }
+
+.rec-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.rec-start {
+  background: linear-gradient(135deg, var(--danger) 0%, #96281B 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(192,57,43,.3);
+}
+.rec-start:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(192,57,43,.4); }
+.rec-stop {
+  background: var(--mist);
+  color: var(--danger);
+  border: 2px solid var(--danger);
+}
+.rec-icon { font-size: 20px; }
+
+.waveform-bar {
+  height: 40px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 12px;
+  display: none;
+}
+.waveform-bar.visible { display: flex; }
+.wave-line {
+  width: 3px;
+  background: var(--paddy);
+  border-radius: 2px;
+  animation: wave-anim 1s ease infinite;
+}
+.wave-line:nth-child(1) { animation-delay: 0s; }
+.wave-line:nth-child(2) { animation-delay: .1s; }
+.wave-line:nth-child(3) { animation-delay: .2s; }
+.wave-line:nth-child(4) { animation-delay: .15s; }
+.wave-line:nth-child(5) { animation-delay: .05s; }
+.wave-line:nth-child(6) { animation-delay: .25s; }
+.wave-line:nth-child(7) { animation-delay: .1s; }
+.wave-line:nth-child(8) { animation-delay: .2s; }
+@keyframes wave-anim {
+  0%,100% { height: 8px;  }
+  50%      { height: 28px; }
+}
+
+.rec-timer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+  letter-spacing: 1px;
+}
+.audio-recorded {
+  display: none;
+  background: var(--mist);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--fog);
+}
+.audio-recorded.visible { display: flex; }
+.audio-recorded audio { flex: 1; height: 36px; }
+.audio-tick { font-size: 20px; color: var(--safe); }
+
+/* ─── Submit button ───────────────────────────────────────────────── */
+.submit-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--harvest) 0%, #B56A00 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 6px 24px rgba(212,130,10,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+.submit-btn:hover  { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(212,130,10,.45); }
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled {
+  background: var(--fog);
+  color: #aaa;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Loading overlay ─────────────────────────────────────────────── */
+.loading-card { display: none; text-align: center; padding: 36px 20px; }
+.loading-card.visible { display: block; }
+.loading-spinner {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 4px solid var(--fog);
+  border-top-color: var(--harvest);
+  animation: spin .8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-steps { list-style: none; text-align: left; margin-top: 20px; }
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: #aaa;
+  border-bottom: 1px solid var(--mist);
+  transition: color .3s;
+}
+.loading-step.done  { color: var(--safe); }
+.loading-step.active { color: var(--harvest); font-weight: 600; }
+.loading-step-icon { font-size: 16px; min-width: 22px; text-align: center; }
+
+/* ─── Results panel ───────────────────────────────────────────────── */
+.results-panel { display: none; }
+.results-panel.visible { display: block; }
+
+.result-header {
+  background: linear-gradient(135deg, var(--soil), var(--earth));
+  color: white;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.result-header-icon { font-size: 28px; }
+.result-header h2  { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.result-header p   { font-size: 12px; color: rgba(255,255,255,.6); }
+.result-body       { padding: 0; }
+
+/* Claim summary grid */
+.claim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--fog);
+  border: 1px solid var(--fog);
+}
+.claim-cell {
+  background: white;
+  padding: 14px 16px;
+}
+.claim-cell.full { grid-column: 1 / -1; }
+.claim-cell-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 4px;
+}
+.claim-cell-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.claim-cell-value.big {
+  font-size: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Peril badge */
+.peril-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid currentColor;
+}
+.peril-Inundation   { color: var(--sky);    background: rgba(59,125,216,.1); }
+.peril-Hailstorm    { color: #8E44AD;       background: rgba(142,68,173,.1); }
+.peril-Landslide    { color: var(--earth);  background: rgba(92,51,23,.1); }
+.peril-CloudBurst   { color: #2980B9;       background: rgba(41,128,185,.1); }
+.peril-NaturalFire  { color: var(--danger); background: rgba(192,57,43,.1); }
+.peril-manual       { color: var(--warn);   background: rgba(230,126,34,.1); }
+
+/* Damage meter */
+.damage-meter-wrap { padding: 16px; }
+.damage-meter-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.damage-meter-label strong { font-size: 22px; font-family: 'JetBrains Mono', monospace; }
+.meter-bar {
+  height: 12px;
+  background: var(--mist);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 1s cubic-bezier(.25,.46,.45,.94);
+  background: linear-gradient(90deg, var(--paddy), var(--harvest), var(--danger));
+}
+
+/* Warnings */
+.warnings-section { padding: 16px; border-top: 1px solid var(--fog); }
+.warning-item {
+  background: #FEF9E7;
+  border: 1px solid #F9CA24;
+  border-left: 4px solid var(--warn);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  color: var(--soil);
+}
+.warning-item.critical {
+  background: #FDEDEC;
+  border-color: var(--danger);
+  border-left-color: var(--danger);
+}
+
+/* JSON viewer */
+.json-viewer-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-top: 1px solid var(--fog);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--earth);
+  user-select: none;
+}
+.json-viewer-body {
+  display: none;
+  padding: 0 16px 16px;
+}
+.json-viewer-body.open { display: block; }
+.json-block {
+  background: var(--soil);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #E8D5A3;
+}
+.json-key   { color: #7DD3FC; }
+.json-str   { color: #86EFAC; }
+.json-num   { color: #FCA5A5; }
+.json-bool  { color: #C084FC; }
+.json-null  { color: #94A3B8; }
+
+/* Status chip */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.status-chip.ok  { background: rgba(39,174,96,.15); color: var(--safe); }
+.status-chip.bad { background: rgba(192,57,43,.15); color: var(--danger); }
+
+/* Transcription block */
+.transcription-block {
+  background: var(--mist);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--soil);
+  border-left: 3px solid var(--paddy);
+  font-style: italic;
+  margin: 0 16px 16px;
+}
+.transcription-label {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--paddy);
+  margin-bottom: 6px;
+}
+
+/* ─── Misc ────────────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--fog); margin: 4px 0; }
+.info-tip {
+  font-size: 11px;
+  color: #aaa;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 0 0;
+}
+.error-banner {
+  background: #FDEDEC;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--danger);
+  display: none;
+  margin-bottom: 16px;
+}
+.error-banner.visible { display: block; }
+
+/* ─── Footer ──────────────────────────────────────────────────────── */
+.app-footer {
+  text-align: center;
+  padding: 24px 20px 40px;
+  font-size: 11px;
+  color: #aaa;
+  line-height: 1.8;
+}
+
+/* ─── Responsive tweaks ───────────────────────────────────────────── */
+@media (min-width: 480px) {
+  .content { padding: 28px 24px; }
+  .card { padding: 26px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────── -->
+<header class="app-header">
+  <div class="header-gov-tag">Government of India · Agriculture & Farmers Welfare</div>
+  <h1 class="header-title">PMFBY फसल सुरक्षा</h1>
+  <div class="header-subtitle">Pradhan Mantri Fasal Bima Yojana - AI Crop Loss Intake</div>
+  <div class="header-badge">
+    <span class="badge-dot"></span>
+    72-Hour Reporting Window Active
+  </div>
+</header>
+
+<!-- ── Step bar ─────────────────────────────────────────────────── -->
+<nav class="step-bar" id="stepBar">
+  <div class="step-item active" id="step1">
+    <div class="step-num">1</div>
+    <div class="step-label">Verify</div>
+  </div>
+  <div class="step-item" id="step2">
+    <div class="step-num">2</div>
+    <div class="step-label">Evidence</div>
+  </div>
+  <div class="step-item" id="step3">
+    <div class="step-num">3</div>
+    <div class="step-label">Review</div>
+  </div>
+</nav>
+
+<!-- ── Main content ─────────────────────────────────────────────── -->
+<main class="content">
+
+  <!-- Error banner -->
+  <div class="error-banner" id="errorBanner"></div>
+
+  <!-- Step 1: Policy verification -->
+  <div class="card" id="cardPolicy" style="animation-delay:.05s">
+    <div class="card-label">🪪 Step 1 - Policy Verification</div>
+    <div class="field-group">
+      <label class="field-label" for="policyNumber">PMFBY Policy Number</label>
+      <input type="text" id="policyNumber" placeholder="e.g. PMFBY-PB-2026-XXXXXX" maxlength="30"/>
+      <div class="info-tip">ℹ️ Enter the 14-digit policy number from your insurance certificate.</div>
+    </div>
+  </div>
+
+  <!-- Step 2: Photo upload -->
+  <div class="card" id="cardPhoto" style="animation-delay:.1s">
+    <div class="card-label">📷 Step 2A - Field Photograph</div>
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="imageInput" accept="image/*" capture="environment"/>
+      <span class="upload-icon">🌾</span>
+      <h3>Take a photo of the damaged field</h3>
+      <p>Tap here to use your camera · JPEG, PNG accepted</p>
+      <div class="upload-preview" id="uploadPreview">
+        <img id="previewImg" src="" alt="Field preview"/>
+        <div class="preview-caption">
+          <span id="previewName">photo.jpg</span>
+          <span class="exif-badge" id="exifBadge">📅 Checking timestamp…</span>
+        </div>
+      </div>
+    </div>
+    <div class="info-tip">⚠️ Use your phone camera directly. WhatsApp-forwarded photos may not retain timestamp data.</div>
+  </div>
+
+  <!-- Step 3: Audio recording -->
+  <div class="card" id="cardAudio" style="animation-delay:.15s">
+    <div class="card-label">🎙️ Step 2B - Voice Note (अपनी भाषा में बोलें)</div>
+    <div class="recorder-area">
+      <button class="rec-button rec-start" id="btnRecord" onclick="startRecording()">
+        <span class="rec-icon">⏺</span>
+        <span>Tap to Record (10-30 seconds)</span>
+      </button>
+      <div class="waveform-bar" id="waveformBar">
+        <div class="wave-line"></div><div class="wave-line"></div>
+        <div class="wave-line"></div><div class="wave-line"></div>
+        <div class="wave-line"></div><div class="wave-line"></div>
+        <div class="wave-line"></div><div class="wave-line"></div>
+        <span class="rec-timer" id="recTimer">0:00</span>
+      </div>
+      <div class="audio-recorded" id="audioRecorded">
+        <span class="audio-tick">✅</span>
+        <audio id="audioPlayback" controls></audio>
+      </div>
+    </div>
+    <div class="info-tip" style="margin-top:10px">
+      🗣️ Describe the damage: crop type, what happened, when it happened. 
+      You can speak in Hindi, Punjabi, Marathi, Telugu, or any regional language.
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <button class="submit-btn" id="submitBtn" onclick="submitClaim()" disabled>
+    <span>🚜</span>
+    <span>Submit Claim to NCIP Portal</span>
+  </button>
+
+  <!-- Loading state -->
+  <div class="card loading-card" id="loadingCard">
+    <div class="loading-spinner"></div>
+    <h3 style="font-size:15px; margin-bottom:6px; color:var(--soil)">Processing your claim…</h3>
+    <p style="font-size:12px; color:#aaa">Please wait. Do not close this page.</p>
+    <ul class="loading-steps" id="loadingSteps">
+      <li class="loading-step" id="ls1"><span class="loading-step-icon">📋</span> Verifying policy details</li>
+      <li class="loading-step" id="ls2"><span class="loading-step-icon">📅</span> Extracting photo timestamp (EXIF)</li>
+      <li class="loading-step" id="ls3"><span class="loading-step-icon">🗣️</span> Transcribing regional voice note</li>
+      <li class="loading-step" id="ls4"><span class="loading-step-icon">🤖</span> AI multimodal damage analysis</li>
+      <li class="loading-step" id="ls5"><span class="loading-step-icon">📄</span> Generating NCIP claim payload</li>
+    </ul>
+  </div>
+
+  <!-- Results panel -->
+  <div class="results-panel" id="resultsPanel">
+
+    <!-- Header -->
+    <div class="result-header">
+      <div class="result-header-icon">📋</div>
+      <div>
+        <h2>Claim Intake Complete</h2>
+        <p id="resultPolicyLine">Review before final NCIP submission</p>
+      </div>
+    </div>
+
+    <!-- Claim data grid -->
+    <div class="result-body">
+      <div class="claim-grid" id="claimGrid"></div>
+
+      <!-- Damage meter -->
+      <div class="damage-meter-wrap">
+        <div class="damage-meter-label">
+          <span style="font-size:12px;font-weight:600;color:#666">Estimated Crop Damage</span>
+          <strong id="dmgPct">—%</strong>
+        </div>
+        <div class="meter-bar">
+          <div class="meter-fill" id="meterFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Transcription -->
+      <div class="transcription-block" id="transcriptionBlock">
+        <div class="transcription-label">🗣️ Transcribed Voice Note</div>
+        <div id="transcriptionText"></div>
+      </div>
+
+      <!-- Warnings -->
+      <div class="warnings-section" id="warningsSection" style="display:none">
+        <div class="card-label" style="margin-bottom:10px">⚠️ Alerts &amp; Advisories</div>
+        <div id="warningsList"></div>
+      </div>
+
+      <!-- JSON viewer -->
+      <div class="json-viewer-toggle" onclick="toggleJson()">
+        <span>📦 Full NCIP Claim Payload (JSON)</span>
+        <span id="jsonArrow">▼</span>
+      </div>
+      <div class="json-viewer-body" id="jsonBody">
+        <pre class="json-block" id="jsonDisplay"></pre>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="app-footer">
+  PMFBY AI Intake Engine · MVP v1.0<br/>
+  Powered by Google Vertex AI (Gemini 1.5 Flash) · Google Cloud Speech-to-Text (Chirp v2)<br/>
+  All claim data is reviewed by certified agricultural assessors before adjudication.
+</footer>
+
+<script>
+/* ──────────────────────────────────────────────────────────────────
+   State
+────────────────────────────────────────────────────────────────── */
+let mediaRecorder = null;
+let audioChunks   = [];
+let audioBlob     = null;
+let imageFile     = null;
+let recTimerInt   = null;
+let recSeconds    = 0;
+
+/* ──────────────────────────────────────────────────────────────────
+   Image input
+────────────────────────────────────────────────────────────────── */
+document.getElementById('imageInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  imageFile = file;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('previewImg').src = ev.target.result;
+    document.getElementById('previewName').textContent = file.name;
+    document.getElementById('uploadPreview').classList.add('visible');
+
+    // Show EXIF note (actual extraction happens server-side)
+    const exifBadge = document.getElementById('exifBadge');
+    exifBadge.textContent = '📅 Timestamp will be verified';
+  };
+  reader.readAsDataURL(file);
+  checkSubmitReady();
+});
+
+// Drag-and-drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', (e) => {
+  e.preventDefault(); zone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    document.getElementById('imageInput').files = e.dataTransfer.files;
+    document.getElementById('imageInput').dispatchEvent(new Event('change'));
+  }
+});
+
+/* ──────────────────────────────────────────────────────────────────
+   Audio recording
+────────────────────────────────────────────────────────────────── */
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream, { mimeType: getSupportedMime() });
+
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const mime = getSupportedMime();
+      audioBlob = new Blob(audioChunks, { type: mime });
+      const url = URL.createObjectURL(audioBlob);
+      document.getElementById('audioPlayback').src = url;
+      document.getElementById('audioRecorded').classList.add('visible');
+      stream.getTracks().forEach(t => t.stop());
+      checkSubmitReady();
+    };
+
+    mediaRecorder.start();
+    recSeconds = 0;
+    document.getElementById('waveformBar').classList.add('visible');
+    document.getElementById('btnRecord').innerHTML = `<span class="rec-icon">⏹</span><span>Stop Recording</span>`;
+    document.getElementById('btnRecord').className = 'rec-button rec-stop';
+    document.getElementById('btnRecord').onclick = stopRecording;
+
+    recTimerInt = setInterval(() => {
+      recSeconds++;
+      const m = Math.floor(recSeconds / 60);
+      const s = recSeconds % 60;
+      document.getElementById('recTimer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+      if (recSeconds >= 60) stopRecording(); // auto-stop at 60s
+    }, 1000);
+  } catch (err) {
+    showError('Microphone access denied. Please allow microphone permissions and try again.');
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  clearInterval(recTimerInt);
+  document.getElementById('waveformBar').classList.remove('visible');
+  document.getElementById('btnRecord').innerHTML = `<span class="rec-icon">⏺</span><span>Re-record Audio</span>`;
+  document.getElementById('btnRecord').className = 'rec-button rec-start';
+  document.getElementById('btnRecord').onclick = startRecording;
+}
+
+function getSupportedMime() {
+  const types = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'];
+  for (const t of types) { if (MediaRecorder.isTypeSupported(t)) return t; }
+  return 'audio/webm';
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Form validation
+────────────────────────────────────────────────────────────────── */
+document.getElementById('policyNumber').addEventListener('input', checkSubmitReady);
+
+function checkSubmitReady() {
+  const policy = document.getElementById('policyNumber').value.trim();
+  const ready  = policy.length >= 6 && imageFile && audioBlob;
+  document.getElementById('submitBtn').disabled = !ready;
+
+  // Update step indicators
+  if (policy.length >= 6) markStep(1, 'done');
+  if (imageFile || audioBlob) markStep(2, 'active');
+  if (imageFile && audioBlob) markStep(2, 'done');
+}
+
+function markStep(n, state) {
+  const el = document.getElementById(`step${n}`);
+  el.className = 'step-item ' + state;
+  if (state === 'done') el.querySelector('.step-num').textContent = '✓';
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Submit
+────────────────────────────────────────────────────────────────── */
+async function submitClaim() {
+  hideError();
+  setLoading(true);
+  markStep(3, 'active');
+
+  const fd = new FormData();
+  fd.append('policy_number', document.getElementById('policyNumber').value.trim());
+  fd.append('image', imageFile, imageFile.name);
+  fd.append('audio', audioBlob, 'voice-note.webm');
+
+  // Animate loading steps
+  animateLoadingSteps();
+
+  try {
+    const res  = await fetch('/submit-claim', { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || `Server error ${res.status}`);
+    }
+
+    setLoading(false);
+    renderResults(data);
+    markStep(3, 'done');
+
+    // Scroll to results
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    setLoading(false);
+    showError(`Submission failed: ${err.message}`);
+    markStep(3, '');
+  }
+}
+
+function animateLoadingSteps() {
+  const steps = ['ls1','ls2','ls3','ls4','ls5'];
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      steps.slice(0,i).forEach(prev => {
+        document.getElementById(prev).className = 'loading-step done';
+        document.getElementById(prev).querySelector('.loading-step-icon').textContent = '✅';
+      });
+      document.getElementById(id).className = 'loading-step active';
+    }, i * 1400);
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Render results
+────────────────────────────────────────────────────────────────── */
+function renderResults(data) {
+  document.getElementById('resultsPanel').classList.add('visible');
+  const claim = data.ncip_claim_payload || {};
+  const ai    = claim;
+  const meta  = data.metadata_analysis || {};
+  const trans = data.transcription || {};
+  const pol   = data.policy_details || {};
+
+  // Header
+  document.getElementById('resultPolicyLine').textContent =
+    `Policy: ${claim.policy_number || '—'} · ${pol.farmer_name || '—'}`;
+
+  // Peril badge class
+  const perilClass = {
+    'Inundation':   'peril-Inundation',
+    'Hailstorm':    'peril-Hailstorm',
+    'Landslide':    'peril-Landslide',
+    'Cloud Burst':  'peril-CloudBurst',
+    'Natural Fire': 'peril-NaturalFire',
+  }[ai.peril_type] || 'peril-manual';
+
+  const within72 = meta.within_72_hours;
+
+  // Claim grid
+  const gridData = [
+    { label: 'Farmer Name',       value: pol.farmer_name || '—' },
+    { label: 'Policy Number',     value: `<span style="font-family:'JetBrains Mono',monospace;font-size:13px">${claim.policy_number||'—'}</span>` },
+    { label: 'Insured Crop',      value: pol.insured_crop || '—' },
+    { label: 'AI Identified Crop',value: ai.crop_type || '—' },
+    { label: 'Season',            value: pol.season || '—' },
+    { label: 'Area Insured',      value: `${pol.insured_area_hectares||'—'} ha` },
+    { label: 'District / State',  value: `${pol.district||'—'}, ${pol.state||'—'}` },
+    { label: 'Incident Date',     value: claim.incident_date || '—' },
+    { label: 'Peril Classified',  value: `<span class="peril-badge ${perilClass}">${perilIcon(ai.peril_type)} ${ai.peril_type||'—'}</span>` },
+    { label: 'AI Confidence',     value: `${((ai.peril_confidence||0)*100).toFixed(0)}%` },
+    { label: '72-Hour Window',    value: `<span class="status-chip ${within72?'ok':'bad'}">${within72?'✓ Within Window':'✗ Outside Window'}</span>` },
+    { label: 'GPS',               value: meta.gps_coordinates ? `${meta.gps_coordinates.lat.toFixed(5)}, ${meta.gps_coordinates.lon.toFixed(5)}` : 'Not available' },
+    { label: 'Damage Description', value: ai.damage_description || '—', full: true },
+  ];
+
+  const grid = document.getElementById('claimGrid');
+  grid.innerHTML = gridData.map(d =>
+    `<div class="claim-cell${d.full?' full':''}">
+       <div class="claim-cell-label">${d.label}</div>
+       <div class="claim-cell-value">${d.value}</div>
+     </div>`
+  ).join('');
+
+  // Damage meter
+  const pct = ai.estimated_damage_percentage || 0;
+  document.getElementById('dmgPct').textContent = `${pct}%`;
+  setTimeout(() => {
+    document.getElementById('meterFill').style.width = `${pct}%`;
+  }, 300);
+
+  // Transcription
+  document.getElementById('transcriptionText').textContent = trans.transcription || '(No transcription)';
+  if (trans.detected_language) {
+    document.getElementById('transcriptionText').insertAdjacentHTML('beforebegin',
+      `<div style="font-size:11px;color:#aaa;margin-bottom:4px">
+         Detected: ${trans.detected_language} · Confidence: ${((trans.confidence||0)*100).toFixed(0)}%
+         ${trans.is_fallback ? ' · <em>Demo mode</em>' : ''}
+       </div>`
+    );
+  }
+
+  // Warnings
+  const warnings = data.warnings || [];
+  if (warnings.length) {
+    document.getElementById('warningsSection').style.display = 'block';
+    document.getElementById('warningsList').innerHTML = warnings.map(w =>
+      `<div class="warning-item${w.includes('CRITICAL')?'critical':''}">${w}</div>`
+    ).join('');
+  }
+
+  // JSON viewer
+  document.getElementById('jsonDisplay').innerHTML = syntaxHighlight(
+    JSON.stringify(data.ncip_claim_payload, null, 2)
+  );
+}
+
+function perilIcon(peril) {
+  const icons = {
+    'Inundation':   '🌊',
+    'Hailstorm':    '🌨️',
+    'Landslide':    '⛰️',
+    'Cloud Burst':  '⛈️',
+    'Natural Fire': '🔥',
+  };
+  return icons[peril] || '⚠️';
+}
+
+function syntaxHighlight(json) {
+  return json
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      (match) => {
+        let cls = 'json-num';
+        if (/^"/.test(match)) { cls = /:$/.test(match) ? 'json-key' : 'json-str'; }
+        else if (/true|false/.test(match)) { cls = 'json-bool'; }
+        else if (/null/.test(match)) { cls = 'json-null'; }
+        return `<span class="${cls}">${match}</span>`;
+      }
+    );
+}
+
+function toggleJson() {
+  const body  = document.getElementById('jsonBody');
+  const arrow = document.getElementById('jsonArrow');
+  const open  = body.classList.toggle('open');
+  arrow.textContent = open ? '▲' : '▼';
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   UI helpers
+────────────────────────────────────────────────────────────────── */
+function setLoading(on) {
+  document.getElementById('loadingCard').classList.toggle('visible', on);
+  document.getElementById('submitBtn').disabled = on;
+  ['cardPolicy','cardPhoto','cardAudio'].forEach(id => {
+    document.getElementById(id).style.opacity = on ? '.5' : '1';
+  });
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBanner');
+  b.textContent = '⚠️ ' + msg;
+  b.classList.add('visible');
+  b.scrollIntoView({ behavior: 'smooth' });
+}
+function hideError() {
+  document.getElementById('errorBanner').classList.remove('visible');
+}
+</script>
+</body>
+</html>

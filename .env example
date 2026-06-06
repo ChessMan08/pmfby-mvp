@@ -1,0 +1,7 @@
+GCP_PROJECT_ID=pmfby-intake-mvp
+GCP_LOCATION=us-central1
+GOOGLE_APPLICATION_CREDENTIALS=./service-account-key.json
+EMINI_API_KEY=Your_API_Key
+APP_HOST=0.0.0.0
+APP_PORT=8000
+APP_ENV=development
