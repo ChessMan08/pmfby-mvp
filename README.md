@@ -2,7 +2,7 @@
 
 > **Pradhan Mantri Fasal Bima Yojana** · Multimodal Crop Loss Claim Intake  
 > Stack: FastAPI · Google Vertex AI (Gemini 1.5 Flash) · Google Cloud Speech-to-Text (Chirp v2) · Pillow
-
+> Read the complete case study and development journey here: [Building PMFBY AI Intake Engine](https://chessman.hashnode.dev/when-a-farmer-loses-everything-he-has-72-hours-i-built-an-ai-that-helps-him-use-them)
 ---
 
 ## Table of Contents
