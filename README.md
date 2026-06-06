@@ -63,6 +63,8 @@ gcloud --version      # Google Cloud SDK x.x.x
 
 ![Architecture Diagram](pmfby_system_architecture.svg)
 
+---
+
 ## 4. Google Cloud Project Setup
 
 ### 4a. Create a new project (skip if you already have one)
