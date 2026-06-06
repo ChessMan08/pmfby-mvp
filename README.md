@@ -1,4 +1,4 @@
-# PMFBY AI Intake Engine — Setup & Deployment Guide
+# PMFBY AI Intake Engine - Setup & Deployment Guide
 
 > **Pradhan Mantri Fasal Bima Yojana** · Multimodal Crop Loss Claim Intake  
 > Stack: FastAPI · Google Vertex AI (Gemini 1.5 Flash) · Google Cloud Speech-to-Text (Chirp v2) · Pillow
