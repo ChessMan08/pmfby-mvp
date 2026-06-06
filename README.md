@@ -9,15 +9,16 @@
 
 1. [Project Structure](#1-project-structure)
 2. [Prerequisites](#2-prerequisites)
-3. [Google Cloud Project Setup](#3-google-cloud-project-setup)
-4. [Enable Required APIs](#4-enable-required-apis)
-5. [Create a Service Account & Download Key](#5-create-a-service-account--download-key)
-6. [Local Development Setup](#6-local-development-setup)
-7. [Running the Server](#7-running-the-server)
-8. [Testing the API](#8-testing-the-api)
-9. [Deploying to Google Cloud Run](#9-deploying-to-google-cloud-run)
-10. [Architecture Decisions & Engineering Notes](#10-architecture-decisions--engineering-notes)
-11. [Known Limitations & Roadmap](#11-known-limitations--roadmap)
+3. [Architecture](#3-architecture)
+4. [Google Cloud Project Setup](#4-google-cloud-project-setup)
+5. [Enable Required APIs](#5-enable-required-apis)
+6. [Create a Service Account & Download Key](#6-create-a-service-account--download-key)
+7. [Local Development Setup](#7-local-development-setup)
+8. [Running the Server](#8-running-the-server)
+9. [Testing the API](#9-testing-the-api)
+10. [Deploying to Google Cloud Run](#10-deploying-to-google-cloud-run)
+11. [Architecture Decisions & Engineering Notes](#11-architecture-decisions--engineering-notes)
+12. [Known Limitations & Roadmap](#12-known-limitations--roadmap)
 
 ---
 
@@ -58,9 +59,13 @@ gcloud --version      # Google Cloud SDK x.x.x
 
 ---
 
-## 3. Google Cloud Project Setup
+## 3. Architecture
 
-### 3a. Create a new project (skip if you already have one)
+![Architecture Diagram](pmfby_system_architecture.svg)
+
+## 4. Google Cloud Project Setup
+
+### 4a. Create a new project (skip if you already have one)
 
 ```bash
 # Create the project
@@ -70,7 +75,7 @@ gcloud projects create pmfby-intake-mvp --name="PMFBY Intake Engine"
 gcloud config set project pmfby-intake-mvp
 ```
 
-### 3b. Link a billing account (required for API usage)
+### 4b. Link a billing account (required for API usage)
 
 ```bash
 # List your billing accounts
@@ -82,7 +87,7 @@ gcloud billing projects link pmfby-intake-mvp \
 ```
 ---
 
-## 4. Enable Required APIs
+## 5. Enable Required APIs
 
 Run this single command to enable all necessary APIs:
 
@@ -104,9 +109,9 @@ gcloud services list --enabled --project=pmfby-intake-mvp \
 
 ---
 
-## 5. Create a Service Account & Download Key
+## 6. Create a Service Account & Download Key
 
-### 5a. Create the service account
+### 6a. Create the service account
 
 ```bash
 gcloud iam service-accounts create pmfby-intake-sa \
@@ -114,7 +119,7 @@ gcloud iam service-accounts create pmfby-intake-sa \
   --project=pmfby-intake-mvp
 ```
 
-### 5b. Grant the required IAM roles
+### 6b. Grant the required IAM roles
 
 ```bash
 PROJECT_ID="pmfby-intake-mvp"
@@ -131,7 +136,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role="roles/speech.client"
 ```
 
-### 5c. Download the JSON key file
+### 6c. Download the JSON key file
 
 ```bash
 gcloud iam service-accounts keys create ./service-account-key.json \
@@ -140,15 +145,15 @@ gcloud iam service-accounts keys create ./service-account-key.json \
 ```
 ---
 
-## 6. Local Development Setup
+## 7. Local Development Setup
 
-### 6a. Clone / enter the project directory
+### 7a. Clone / enter the project directory
 
 ```bash
 cd pmfby-mvp
 ```
 
-### 6b. Create and activate a virtual environment
+### 7b. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
@@ -160,14 +165,14 @@ source venv/bin/activate
 .\venv\Scripts\Activate.ps1
 ```
 
-### 6c. Install dependencies
+### 7c. Install dependencies
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 6d. Configure environment variables
+### 7d. Configure environment variables
 
 ```bash
 cp .env.example .env
@@ -182,7 +187,7 @@ GOOGLE_APPLICATION_CREDENTIALS=./service-account-key.json
 APP_ENV=development
 ```
 
-### 6e. Alternative: Authenticate via Application Default Credentials (ADC)
+### 7e. Alternative: Authenticate via Application Default Credentials (ADC)
 
 If you prefer not to use a key file during local development:
 
@@ -201,7 +206,7 @@ GCP_PROJECT_ID=pmfby-intake-mvp
 
 ---
 
-## 7. Running the Server
+## 8. Running the Server
 
 ### Development mode (with auto-reload)
 
@@ -221,16 +226,16 @@ You should see the PMFBY Fasal Suraksha intake interface.
 
 ---
 
-## 8. Testing the API
+## 9. Testing the API
 
-### 8a. Health check
+### 9a. Health check
 
 ```bash
 curl http://localhost:8000/health
 # → {"status":"ok","service":"PMFBY AI Intake Engine"}
 ```
 
-### 8b. Submit a test claim via cURL
+### 9b. Submit a test claim via cURL
 
 ```bash
 curl -X POST http://localhost:8000/submit-claim \
@@ -239,7 +244,7 @@ curl -X POST http://localhost:8000/submit-claim \
   -F "audio=@/path/to/test-voice-note.webm"
 ```
 
-### 8c. Expected response structure
+### 9c. Expected response structure
 
 ```json
 {
@@ -274,7 +279,7 @@ curl -X POST http://localhost:8000/submit-claim \
 }
 ```
 
-### 8d. Running unit tests
+### 9d. Running unit tests
 
 ```bash
 pytest tests/ -v
@@ -282,9 +287,9 @@ pytest tests/ -v
 
 ---
 
-## 9. Deploying to Google Cloud Run
+## 10. Deploying to Google Cloud Run
 
-### 9a. Build and push the Docker image
+### 10a. Build and push the Docker image
 
 ```bash
 PROJECT_ID="pmfby-intake-mvp"
@@ -299,7 +304,7 @@ docker build -t gcr.io/${PROJECT_ID}/pmfby-intake:v1 .
 docker push gcr.io/${PROJECT_ID}/pmfby-intake:v1
 ```
 
-### 9b. Deploy to Cloud Run
+### 10b. Deploy to Cloud Run
 
 ```bash
 gcloud run deploy pmfby-intake \
@@ -321,7 +326,7 @@ gcloud run deploy pmfby-intake \
 > Firebase Authentication or IAP (Identity-Aware Proxy) to authenticate farmers via  
 > mobile OTP before claim submission.
 
-### 9c. Store secrets securely (production best practice)
+### 10c. Store secrets securely (production best practice)
 
 Instead of environment variables, use Google Secret Manager:
 
@@ -338,7 +343,7 @@ gcloud secrets add-iam-policy-binding pmfby-sa-key \
 
 ---
 
-## 10. Architecture Decisions & Engineering Notes
+## 11. Architecture Decisions & Engineering Notes
 
 ### Why Gemini 1.5 Flash over Pro?
 
@@ -383,7 +388,7 @@ ensuring no farmer is silently denied due to an AI error.
 
 ---
 
-## 11. Known Limitations & Roadmap
+## 12. Known Limitations & Roadmap
 
 | Limitation | Current Behaviour | Roadmap Fix |
 |------------|-------------------|-------------|
