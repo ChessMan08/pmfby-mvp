@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "your-gcp-project-id")
 
 # Chirp v2 recognizer resource name pattern
-CHIRP_RECOGNIZER = f"projects/{GCP_PROJECT_ID}/locations/us-central1/recognizers/_"
+CHIRP_RECOGNIZER = f"projects/{GCP_PROJECT_ID}/locations/global/recognizers/_"
 
 # Primary language + alternatives covering major Indian agricultural states
 LANGUAGE_CODES = [
