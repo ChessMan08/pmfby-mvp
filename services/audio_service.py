@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "your-gcp-project-id")
 
 # Chirp v2 recognizer resource name pattern
-CHIRP_RECOGNIZER = f"projects/{GCP_PROJECT_ID}/locations/global/recognizers/_"
+CHIRP_RECOGNIZER = f"projects/{GCP_PROJECT_ID}/locations/us-central1/recognizers/_"
 
 # Primary language + alternatives covering major Indian agricultural states
 LANGUAGE_CODES = [
@@ -65,7 +65,7 @@ async def _call_chirp_v2(audio_bytes: bytes, content_type: str) -> dict[str, Any
     config = cloud_speech.RecognitionConfig(
         auto_decoding_config=cloud_speech.AutoDetectDecodingConfig(),
         language_codes=LANGUAGE_CODES,
-        model="chirp_2",
+        model="chirp",
         features=cloud_speech.RecognitionFeatures(
             enable_automatic_punctuation=True,
             enable_spoken_punctuation=False,
