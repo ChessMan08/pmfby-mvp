@@ -30,7 +30,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "your-gcp-project-id")
 GCP_LOCATION   = os.getenv("GCP_LOCATION", "us-central1")
 
-GEMINI_MODEL = "gemini-1.5-flash-002"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 # REST endpoint templates
 _AI_STUDIO_URL = (
