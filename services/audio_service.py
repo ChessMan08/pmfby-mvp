@@ -51,7 +51,13 @@ async def _call_chirp_v2(audio_bytes: bytes, content_type: str) -> dict[str, Any
     from google.cloud.speech_v2 import SpeechClient
     from google.cloud.speech_v2.types import cloud_speech
 
-    client = SpeechClient()
+    import google.auth
+    from google.auth.transport.requests import Request as AuthRequest
+    credentials, project = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
+    credentials.refresh(AuthRequest())
+    client = SpeechClient(credentials=credentials)
 
     # Determine audio encoding from MIME type
     encoding = _mime_to_encoding(content_type)
